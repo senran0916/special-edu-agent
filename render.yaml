@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: special-edu-agent
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DB_PATH
+        value: /app/data/records.db

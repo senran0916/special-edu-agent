@@ -1,0 +1,167 @@
+{
+  "version": "1.0",
+  "description": "特殊教育(自闭症康复)行为分类体系 - 简化版",
+  "domains": [
+    {
+      "id": "social_communication",
+      "name": "社交沟通",
+      "is_target": true,
+      "behaviors": [
+        {
+          "id": "eye_contact",
+          "name": "眼神接触",
+          "keywords": ["眼神", "目光", "对视", "看了", "看着", "注视"],
+          "levels": ["无眼神接触", "短暂对视", "频繁对视", "主动持续对视"]
+        },
+        {
+          "id": "joint_attention",
+          "name": "共同注意",
+          "keywords": ["共同注意", "指给我", "分享", "给我看", "看那个", "指向"],
+          "levels": ["无反应", "跟随指向", "主动发起分享"]
+        },
+        {
+          "id": "initiate_interaction",
+          "name": "主动发起互动",
+          "keywords": ["主动", "发起", "打招呼", "叫人", "找小朋友", "靠近"],
+          "levels": ["不主动", "偶尔主动", "经常主动"]
+        },
+        {
+          "id": "respond_to_others",
+          "name": "回应他人",
+          "keywords": ["回应", "应答", "叫他名字", "回答问题", "反应"],
+          "levels": ["无回应", "部分回应", "稳定回应"]
+        },
+        {
+          "id": "turn_taking",
+          "name": "轮流互动",
+          "keywords": ["轮流", "等待", "排队", "轮到", "交换"],
+          "levels": ["不能等待", "提示下轮流", "独立轮流"]
+        }
+      ]
+    },
+    {
+      "id": "language_expression",
+      "name": "语言表达",
+      "is_target": true,
+      "behaviors": [
+        {
+          "id": "vocabulary_use",
+          "name": "词汇使用",
+          "keywords": ["词汇", "说了", "说出", "新词", "词语", "单词"],
+          "levels": ["无语言", "单字", "短语", "完整句子"]
+        },
+        {
+          "id": "express_needs",
+          "name": "需求表达",
+          "keywords": ["表达需求", "要什么", "提要求", "想要", "需求"],
+          "levels": ["用行为表达", "手势/图片", "口语表达"]
+        },
+        {
+          "id": "asking_questions",
+          "name": "提问能力",
+          "keywords": ["提问", "问为什么", "问是什么", "好奇心"],
+          "levels": ["不提问", "模仿提问", "自发提问"]
+        }
+      ]
+    },
+    {
+      "id": "language_comprehension",
+      "name": "语言理解",
+      "is_target": true,
+      "behaviors": [
+        {
+          "id": "follow_instructions",
+          "name": "指令跟随",
+          "keywords": ["指令", "听懂", "照做", "执行", "一步指令", "两步指令"],
+          "levels": ["不听指令", "一步指令", "多步指令"]
+        },
+        {
+          "id": "understand_questions",
+          "name": "问题理解",
+          "keywords": ["理解问题", "听懂问题", "回答提问", "wh问题"],
+          "levels": ["不理解", "简单问题", "复杂问题"]
+        }
+      ]
+    },
+    {
+      "id": "behavior_issues",
+      "name": "行为问题",
+      "is_target": false,
+      "behaviors": [
+        {
+          "id": "stereotypic_behavior",
+          "name": "刻板行为",
+          "keywords": ["刻板", "转圈", "摇晃", "拍手", "重复", "排列", "旋转物品"],
+          "levels": ["频繁", "偶尔", "极少"]
+        },
+        {
+          "id": "meltdown",
+          "name": "情绪爆发",
+          "keywords": ["哭闹", "发脾气", "崩溃", "尖叫", "躺地上", "情绪爆发", "大哭"],
+          "levels": ["每天多次", "每周数次", "偶尔", "几乎没有"]
+        },
+        {
+          "id": "self_injurious",
+          "name": "自伤行为",
+          "keywords": ["打自己", "咬自己", "撞头", "自伤", "抓自己"],
+          "levels": ["频繁", "偶尔", "无"]
+        },
+        {
+          "id": "escape_behavior",
+          "name": "逃避行为",
+          "keywords": ["逃避", "跑开", "离开座位", "不愿做", "拒绝", "躲"],
+          "levels": ["频繁", "偶尔", "无"]
+        }
+      ]
+    },
+    {
+      "id": "daily_living",
+      "name": "生活自理",
+      "is_target": true,
+      "behaviors": [
+        {
+          "id": "self_care",
+          "name": "自理能力",
+          "keywords": ["穿衣", "吃饭", "如厕", "洗手", "自理", "独立完成"],
+          "levels": ["完全依赖", "部分辅助", "独立完成"]
+        },
+        {
+          "id": "routine_following",
+          "name": "常规遵循",
+          "keywords": ["常规", "日程", "过渡", "转换", "排队", "等待"],
+          "levels": ["抗拒变化", "提示下遵循", "独立遵循"]
+        }
+      ]
+    },
+    {
+      "id": "cognitive_learning",
+      "name": "认知学习",
+      "is_target": true,
+      "behaviors": [
+        {
+          "id": "imitation",
+          "name": "模仿能力",
+          "keywords": ["模仿", "跟着做", "学我", "仿说", "动作模仿"],
+          "levels": ["无模仿", "简单模仿", "复杂模仿"]
+        },
+        {
+          "id": "play_skills",
+          "name": "游戏技能",
+          "keywords": ["游戏", "玩玩具", "假装游戏", "角色扮演", "合作游戏"],
+          "levels": ["独自刻板玩", "功能性游戏", "象征性游戏", "合作游戏"]
+        },
+        {
+          "id": "matching_sorting",
+          "name": "配对分类",
+          "keywords": ["配对", "分类", "一样", "相同", "颜色", "形状"],
+          "levels": ["不能配对", "简单配对", "复杂分类"]
+        }
+      ]
+    }
+  ],
+  "direction_words": {
+    "positive": ["进步", "提升", "改善", "好转", "增加", "主动", "成功", "做到了", "学会", "能", "稳定", "提高", "好了", "明显", "独立", "自发", "第一次"],
+    "negative": ["退步", "下降", "恶化", "频繁", "减少", "失败", "不能", "无法", "抗拒", "哭闹", "严重", "困难", "倒退", "变差", "失控"],
+    "neutral": ["保持", "维持", "稳定不变", "和之前一样", "一般"]
+  }
+}
