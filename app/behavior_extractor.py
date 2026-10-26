@@ -6,8 +6,10 @@
 1. 加载taxonomy, 为每个行为构建关键词索引
 2. 对输入文本分句, 在每个句子中匹配行为关键词
 3. 在匹配句子的上下文中检测方向词(进步/退步/稳定)
-4. 对目标行为: 正向词→+1, 负向词→-1
-   对问题行为: 正向词(如"减少")→+1(问题减轻=好事), 负向词(如"频繁")→-1
+4. 数量方向词(增加/减少)按行为类型解释极性:
+   目标行为: 增加→+1, 减少→-1
+   问题行为: 减少→+1(问题减轻=好事), 增加→-1(问题加重=坏事)
+   质量方向词(进步/退步/恶化等)对所有行为统一: 好消息→+1, 坏消息→-1
 5. 尝试推断能力等级(level_hint)
 """
 import json
@@ -39,17 +41,62 @@ def _split_sentences(text: str) -> List[str]:
     return [s.strip() for s in sentences if s.strip() and len(s.strip()) >= 2]
 
 
-def _find_direction(sentence: str, direction_words: dict) -> Direction:
-    """在句子中检测方向词"""
-    pos_hits = sum(1 for w in direction_words["positive"] if w in sentence)
-    neg_hits = sum(1 for w in direction_words["negative"] if w in sentence)
-    neu_hits = sum(1 for w in direction_words["neutral"] if w in sentence)
+def _find_direction(sentence: str, direction_words: dict, is_target: bool) -> Direction:
+    """在句子中检测方向词
 
-    if pos_hits > neg_hits and pos_hits > 0:
+    语义统一为"对干预目标的好坏":
+    - positive = 好消息(目标行为进步 / 问题行为减轻)
+    - negative = 坏消息(目标行为退步 / 问题行为加重)
+
+    数量方向词(increase/decrease)需结合 is_target 解释:
+    - 目标行为(希望提升): 增加=好, 减少=坏
+    - 问题行为(希望减少): 减少=好, 增加=坏
+
+    匹配采用长词优先+区间占用, 避免"不能"包含"能"、
+    "稳定不变"包含"稳定"等子串冲突导致的误判。
+    """
+    polarity_map = [
+        ("positive", "pos"),
+        ("negative", "neg"),
+        ("neutral", "neu"),
+        ("increase", "inc"),
+        ("decrease", "dec"),
+    ]
+    # 构建 (词, 极性) 列表, 按词长降序, 长词优先匹配
+    word_polarity = []
+    for list_key, pol in polarity_map:
+        for w in direction_words.get(list_key, []):
+            word_polarity.append((w, pol))
+    word_polarity.sort(key=lambda x: -len(x[0]))
+
+    consumed = [False] * len(sentence)
+    counts = {"pos": 0, "neg": 0, "neu": 0, "inc": 0, "dec": 0}
+    for word, pol in word_polarity:
+        start = 0
+        while True:
+            idx = sentence.find(word, start)
+            if idx == -1:
+                break
+            if not any(consumed[idx:idx + len(word)]):
+                counts[pol] += 1
+                for i in range(idx, idx + len(word)):
+                    consumed[i] = True
+            start = idx + len(word)
+
+    # 数量词按 is_target 归并到 pos/neg
+    if is_target:
+        counts["pos"] += counts["inc"]  # 目标行为增加 = 好
+        counts["neg"] += counts["dec"]  # 目标行为减少 = 坏
+    else:
+        counts["pos"] += counts["dec"]  # 问题行为减少 = 好
+        counts["neg"] += counts["inc"]  # 问题行为增加 = 坏
+
+    pos, neg, neu = counts["pos"], counts["neg"], counts["neu"]
+    if pos > neg and pos > 0:
         return Direction.POSITIVE
-    elif neg_hits > pos_hits and neg_hits > 0:
+    elif neg > pos and neg > 0:
         return Direction.NEGATIVE
-    elif neu_hits > 0:
+    elif neu > 0:
         return Direction.NEUTRAL
     # 默认: 提到了但无方向词, 视为中性观察
     return Direction.NEUTRAL
@@ -75,13 +122,11 @@ def _infer_level(sentence: str, levels: List[str]) -> Optional[str]:
     return None  # 无法确定时不猜
 
 
-def _compute_score(direction: Direction, is_target: bool) -> float:
+def _compute_score(direction: Direction) -> float:
     """计算得分
 
-    目标行为(希望提升): positive=+1, negative=-1
-    问题行为(希望减少): positive=+1(问题减轻), negative=-1(问题加重)
-    统一逻辑: positive永远=+1, negative永远=-1, 因为方向词已经
-    在语义上反映了"变好"还是"变差"
+    direction 已统一编码"对干预目标的好坏":
+    positive=+1(目标进步/问题减轻), negative=-1(目标退步/问题加重), neutral=0
     """
     if direction == Direction.POSITIVE:
         return 1.0
@@ -114,8 +159,8 @@ def extract_behaviors(content: str) -> List[BehaviorTag]:
                 if not matched:
                     continue
 
-                direction = _find_direction(sentence, direction_words)
-                score = _compute_score(direction, is_target)
+                direction = _find_direction(sentence, direction_words, is_target)
+                score = _compute_score(direction)
                 level_hint = _infer_level(sentence, behavior.get("levels", []))
 
                 key = behavior["id"]

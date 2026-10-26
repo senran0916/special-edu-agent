@@ -53,8 +53,18 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
-    """启动时初始化数据库"""
+    """启动时初始化数据库; 若为空库则自动灌入演示数据
+
+    行云容器重启后SQLite数据会丢失, 自动灌入保证服务开箱即用。
+    """
     db.init_db()
+    try:
+        if db.count_records() == 0:
+            from seed_data import seed_all
+            n = seed_all()
+            print(f"[startup] 检测到空库, 已自动灌入演示数据 {n} 条")
+    except Exception as e:
+        print(f"[startup] 自动灌入演示数据失败(不影响服务运行): {e}")
 
 
 # ==================== 核心接口 ====================
@@ -267,5 +277,5 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 8080))  # 行云仅暴露8080, 本地默认保持一致
     uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)

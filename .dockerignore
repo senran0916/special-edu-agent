@@ -1,0 +1,14 @@
+# 本地SQLite库(容器内运行时重新生成, 避免把陈旧数据打进镜像)
+data/records.db
+
+# Python缓存
+__pycache__/
+*.pyc
+
+# 工具与配置(不进镜像)
+.joycode/
+.git/
+render.yaml
+verify_fix.py
+check_reports.py
+test_report.json

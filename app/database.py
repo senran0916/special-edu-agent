@@ -162,6 +162,16 @@ def list_children() -> List[dict]:
     return [dict(r) for r in rows]
 
 
+def count_records() -> int:
+    """统计记录总数(用于启动时判断是否为空库)"""
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM records")
+    n = cursor.fetchone()[0]
+    conn.close()
+    return n
+
+
 def generate_record_id() -> str:
     """生成记录ID"""
     return f"rec_{uuid.uuid4().hex[:12]}"
