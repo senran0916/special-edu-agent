@@ -46,7 +46,10 @@ async def lifespan(app):
     db.init_db()
     try:
         if db.count_records() == 0:
-            from seed_data import seed_all
+            try:
+                from app.seed_data import seed_all
+            except ImportError:
+                from seed_data import seed_all
             n = seed_all()
             print(f"[startup] 检测到空库, 已自动灌入演示数据 {n} 条")
     except Exception as e:
@@ -244,7 +247,10 @@ def get_taxonomy():
 def seed_demo_data():
     """一键灌入演示数据(demo用, 生成一个孩子6个月的模拟记录)"""
     try:
-        from seed_data import seed_all
+        try:
+            from app.seed_data import seed_all
+        except ImportError:
+            from seed_data import seed_all
         count = seed_all()
         return APIResponse(
             success=True,

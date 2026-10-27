@@ -240,10 +240,7 @@ def main():
     db.init_db()
     try:
         if db.count_records() == 0:
-            import sys
-            import os
-            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            from seed_data import seed_all
+            from app.seed_data import seed_all
             n = seed_all()
             print(f"[mcp-stdio] 检测到空库, 已自动灌入演示数据 {n} 条", file=sys.stderr)
     except Exception as e:

@@ -11,7 +11,26 @@ from typing import List, Optional
 
 from app.models import StoredRecord, BehaviorTag, Direction
 
-DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "..", "data", "records.db"))
+def _default_db_path() -> str:
+    """默认数据库路径: 优先项目data目录(开发模式), 不可写则用用户主目录(uvx模式)"""
+    dev_path = os.path.join(os.path.dirname(__file__), "..", "data", "records.db")
+    dev_dir = os.path.dirname(dev_path)
+    try:
+        os.makedirs(dev_dir, exist_ok=True)
+        # 测试可写性
+        test_file = os.path.join(dev_dir, ".write_test")
+        with open(test_file, "w") as f:
+            f.write("test")
+        os.remove(test_file)
+        return dev_path
+    except (OSError, PermissionError):
+        # site-packages不可写, 使用用户主目录
+        user_dir = os.path.join(os.path.expanduser("~"), ".special-edu-agent")
+        os.makedirs(user_dir, exist_ok=True)
+        return os.path.join(user_dir, "records.db")
+
+
+DB_PATH = os.environ.get("DB_PATH", _default_db_path())
 
 
 def get_conn() -> sqlite3.Connection:

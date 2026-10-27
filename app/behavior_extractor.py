@@ -19,17 +19,32 @@ from typing import List, Optional
 
 from app.models import BehaviorTag, Direction
 
-TAXONOMY_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "taxonomy.json")
+# taxonomy路径解析: 优先包内(uvx安装模式), 其次项目data目录(开发模式)
+_TAXONOMY_CANDIDATES = [
+    os.path.join(os.path.dirname(__file__), "taxonomy.json"),           # 包内
+    os.path.join(os.path.dirname(__file__), "..", "data", "taxonomy.json"),  # 开发模式
+]
 
 # 全局缓存taxonomy
 _taxonomy_cache = None
+
+
+def _find_taxonomy_path() -> str:
+    """查找taxonomy.json的实际路径"""
+    for path in _TAXONOMY_CANDIDATES:
+        if os.path.isfile(path):
+            return path
+    raise FileNotFoundError(
+        f"taxonomy.json not found in any of: {_TAXONOMY_CANDIDATES}"
+    )
 
 
 def load_taxonomy() -> dict:
     """加载并缓存taxonomy"""
     global _taxonomy_cache
     if _taxonomy_cache is None:
-        with open(TAXONOMY_PATH, "r", encoding="utf-8") as f:
+        taxonomy_path = _find_taxonomy_path()
+        with open(taxonomy_path, "r", encoding="utf-8") as f:
             _taxonomy_cache = json.load(f)
     return _taxonomy_cache
 

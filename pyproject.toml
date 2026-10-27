@@ -16,7 +16,4 @@ dependencies = [
 special-edu-mcp = "app.mcp_server:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["app", "data"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"seed_data.py" = "seed_data.py"
+packages = ["app"]
