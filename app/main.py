@@ -13,6 +13,7 @@ FastAPI入口 - 特殊教育康复决策智能体后端API
 """
 import os
 import sys
+from contextlib import asynccontextmanager
 
 # 确保项目根目录在path中, 支持直接 python -m app.main 运行
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -35,24 +36,9 @@ from app.longitudinal_analyzer import analyze_longitudinal, build_summary
 from app.anomaly_detector import detect_anomalies
 from app.recommendation_engine import generate_recommendations, format_recommendations_for_coze
 
-app = FastAPI(
-    title="特殊教育康复决策智能体 API",
-    description="为Coze智能体提供行为提取、纵向分析、异常预警与方案推荐能力",
-    version="1.0.0",
-)
 
-# 允许Coze跨域调用
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.on_event("startup")
-def startup():
+@asynccontextmanager
+async def lifespan(app):
     """启动时初始化数据库; 若为空库则自动灌入演示数据
 
     行云容器重启后SQLite数据会丢失, 自动灌入保证服务开箱即用。
@@ -65,6 +51,24 @@ def startup():
             print(f"[startup] 检测到空库, 已自动灌入演示数据 {n} 条")
     except Exception as e:
         print(f"[startup] 自动灌入演示数据失败(不影响服务运行): {e}")
+    yield
+
+
+app = FastAPI(
+    title="特殊教育康复决策智能体 API",
+    description="为Coze智能体提供行为提取、纵向分析、异常预警与方案推荐能力",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# 允许Coze跨域调用
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ==================== 核心接口 ====================
@@ -273,6 +277,16 @@ def root():
             "POST /api/seed    - 灌入演示数据",
         ],
     }
+
+
+# ==================== MCP服务器 ====================
+# 挂载MCP SSE端点, 行云team智能体通过 http://<地址>/mcp/sse 连接
+try:
+    from app.mcp_server import mcp as mcp_instance
+    app.mount("/mcp", mcp_instance.sse_app())
+    print("[mcp] MCP服务器已挂载, SSE端点: /mcp/sse")
+except ImportError as e:
+    print(f"[mcp] MCP服务器未启用(缺少mcp依赖): {e}")
 
 
 if __name__ == "__main__":
