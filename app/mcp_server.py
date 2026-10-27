@@ -221,3 +221,37 @@ def get_taxonomy() -> dict:
             for d in taxonomy["domains"]
         ],
     }
+
+
+def main():
+    """stdio模式入口 - 供uvx/行云MCP配置调用
+
+    行云MCP配置JSON:
+    {
+      "mcpServers": {
+        "special-edu-agent": {
+          "command": "uvx",
+          "args": ["--from", "git+https://github.com/senran0916/special-edu-agent.git", "special-edu-mcp"]
+        }
+      }
+    }
+    """
+    # stdio模式: 初始化数据库并灌入演示数据
+    db.init_db()
+    try:
+        if db.count_records() == 0:
+            import sys
+            import os
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            from seed_data import seed_all
+            n = seed_all()
+            print(f"[mcp-stdio] 检测到空库, 已自动灌入演示数据 {n} 条", file=sys.stderr)
+    except Exception as e:
+        print(f"[mcp-stdio] 自动灌入演示数据失败: {e}", file=sys.stderr)
+
+    # 以stdio模式运行MCP服务器
+    mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()
