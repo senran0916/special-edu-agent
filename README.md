@@ -3,7 +3,7 @@ title: 特殊教育康复决策智能体
 emoji: 🎓
 colorFrom: blue
 colorTo: green
-sdk: docker
+sdk: gradio
 app_port: 7860
 pinned: false
 ---
