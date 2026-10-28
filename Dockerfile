@@ -12,8 +12,8 @@ COPY . .
 # 创建数据目录(SQLite运行时写入)
 RUN mkdir -p /app/data
 
-# 行云K8s ingress仅路由容器8080端口
-EXPOSE 8080
+# HF Spaces要求容器监听7860端口(可通过README frontmatter app_port调整)
+EXPOSE 7860
 
-# 绑定0.0.0.0:8080(行云硬性要求, 不能用localhost/127.0.0.1)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# 端口通过环境变量控制, 默认7860(HF Spaces), 行云设PORT=8080
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

@@ -1,3 +1,13 @@
+---
+title: 特殊教育康复决策智能体
+emoji: 🎓
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 特殊教育康复决策智能体 - 后端API
 
 为Coze智能体提供**行为标签提取、纵向时序分析、异常预警、训练方案推荐**能力。
