@@ -11,6 +11,7 @@ MCP服务器 - 特殊教育康复决策智能体
 
 挂载在FastAPI应用的 /mcp 路径下, SSE端点为 /mcp/sse
 """
+import sys
 from typing import Optional
 
 from mcp.server.mcpserver import MCPServer
